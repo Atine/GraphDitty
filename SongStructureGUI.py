@@ -1,16 +1,16 @@
-#Programmer: Chris Tralie
-#Purpose: To extract similarity alignments for use in the GUI
+# Programmer: Chris Tralie
+# Purpose: To extract similarity alignments for use in the GUI
 import numpy as np
 import os
 import scipy.misc
 import matplotlib.pyplot as plt
-from sklearn.decomposition import PCA
 import json
 import base64
-from SimilarityFusion import *
-from DiffusionMaps import *
-from Laplacian import *
+from SimilarityFusion import getS
+from DiffusionMaps import getDiffusionMap
+from Laplacian import getRandomWalkLaplacianEigsDense
 import time
+
 
 def imresize(D, dims, kind='cubic'):
     """
@@ -36,6 +36,7 @@ def imresize(D, dims, kind='cubic'):
     f = scipy.interpolate.interp2d(x1, y1, D, kind=kind)
     return f(x2, y2)
 
+
 def getBase64File(filename):
     fin = open(filename, "rb")
     b = fin.read()
@@ -43,7 +44,8 @@ def getBase64File(filename):
     fin.close()
     return b.decode("ASCII")
 
-def getBase64PNGImage(pD, cmapstr, logfloor_quantile = 0):
+
+def getBase64PNGImage(pD, cmapstr, logfloor_quantile=0):
     """
     Get an image as a base64 string
     """
@@ -60,10 +62,14 @@ def getBase64PNGImage(pD, cmapstr, logfloor_quantile = 0):
     os.remove("temp.png")
     return "data:image/png;base64, " + b
 
-#http://stackoverflow.com/questions/1447287/format-floats-with-standard-json-module
+
+# http://stackoverflow.com/questions/1447287/
+# format-floats-with-standard-json-module
 class PrettyFloat(float):
     def __repr__(self):
         return '%.4g' % self
+
+
 def pretty_floats(obj):
     if isinstance(obj, float):
         return PrettyFloat(obj)
@@ -73,7 +79,8 @@ def pretty_floats(obj):
         return map(pretty_floats, obj)
     return obj
 
-def get_graph_obj(W, K=10, res = 400):
+
+def get_graph_obj(W, K=10, res=400):
     """
     Return an object corresponding to a nearest neighbor graph
     Parameters
@@ -81,12 +88,13 @@ def get_graph_obj(W, K=10, res = 400):
     W: ndarray(N, N)
         The N x N time-ordered similarity matrix
     K: int
-        Number of nearest neighbors to use in graph representation
+        Number of nea)rest neighbors to use in graph representation
     res: int
         Target resolution of resized image
     """
     fac = 1
     if res > -1:
+        print(W.shape)
         fac = int(np.round(W.shape[0]/float(res)))
         res = int(W.shape[0]/fac)
         WRes = imresize(W, (res, res))
@@ -98,27 +106,37 @@ def get_graph_obj(W, K=10, res = 400):
     I, J = np.meshgrid(pix, pix)
     WRes[np.abs(I - J) == 1] = np.max(WRes)
     c = plt.get_cmap('Spectral')
-    C = c(np.array(np.round(np.linspace(0, 255,res)), dtype=np.int32))
+    C = c(np.array(np.round(np.linspace(0, 255, res)), dtype=np.int32))
     C = np.array(np.round(C[:, 0:3]*255), dtype=int)
     colors = C.tolist()
 
-    K = min(int(np.round(K*2.0/fac)), res) # Use slightly more edges
-    print("res = %i, K = %i"%(res, K))
+    K = min(int(np.round(K*2.0/fac)), res)  # Use slightly more edges
+    print("res = %i, K = %i" % (res, K))
     S = getS(WRes, K).tocoo()
     I, J, V = S.row, S.col, S.data
     V *= 10
     ret = {}
-    ret["nodes"] = [{"id":"%i"%i, "color":colors[i]} for i in range(res)]
-    ret["links"] = [{"source":"%i"%I[i], "target":"%i"%J[i], "value":"%.3g"%V[i]} for i in range(I.shape[0])]
+    ret["nodes"] = [{"id": "%i" % i,
+                     "color": colors[i]} for i in range(res)]
+    ret["links"] = [{"source": "%i" % I[i],
+                     "target": "%i" % J[i],
+                     "value": "%.3g" % V[i]} for i in range(I.shape[0])]
     ret["fac"] = fac
     return ret
 
-def saveResultsJSON(filename, times, Ws, neigs, jsonfilename, diffusion_znormalize):
+
+def saveResultsJSON(filename,
+                    times,
+                    Ws,
+                    neigs,
+                    jsonfilename,
+                    diffusion_znormalize):
+
     """
-    Save a JSON file holding the audio and structure information, which can 
+    Save a JSON file holding the audio and structure information, which can
     be parsed by SongStructureGUI.html.  Audio and images are stored as
     base64 for simplicity
-    
+
     Parameters
     ----------
     filename: string
@@ -134,22 +152,24 @@ def saveResultsJSON(filename, times, Ws, neigs, jsonfilename, diffusion_znormali
     diffusion_znormalize: boolean
         Whether to Z-normalize diffusion maps to spread things out more evenly
     """
-    Results = {'songname':filename, 'times':times.tolist()}
+    Results = {'songname': filename, 'times': times.tolist()}
     print("Saving results...")
-    #Add music as base64 files
+    # Add music as base64 files
     _, ext = os.path.splitext(filename)
-    Results['audio'] = "data:audio/%s;base64, "%ext[1::] + getBase64File(filename)
+    Results['audio'] = "data:audio/%s;base64, " % \
+                       ext[1::] + getBase64File(filename)
+    print(Ws.keys())
     W = Ws['Fused']
     WOut = np.array(W)
     np.fill_diagonal(WOut, 0)
     Results['W'] = getBase64PNGImage(WOut, 'magma_r', logfloor_quantile=0.01)
     Results['dim'] = W.shape[0]
-    
+
     # Compute Laplacian eigenvectors
     tic = time.time()
     v = getRandomWalkLaplacianEigsDense(W)
     v = v[:, 1:neigs+1]
-    print("Elapsed Time Laplacian: %.3g"%(time.time()-tic))
+    print("Elapsed Time Laplacian: %.3g" % (time.time()-tic))
 
     # Resize the eigenvectors so they're easier to see
     fac = 10
@@ -164,7 +184,7 @@ def saveResultsJSON(filename, times, Ws, neigs, jsonfilename, diffusion_znormali
 
     # Setup diffusion maps
     c = plt.get_cmap('Spectral')
-    C = c(np.array(np.round(np.linspace(0, 255,W.shape[0])), dtype=np.int32))
+    C = c(np.array(np.round(np.linspace(0, 255, W.shape[0])), dtype=np.int32))
     C = C.flatten()
     WDiff = np.array(W)
     floor = np.quantile(WDiff, 0.01)
@@ -184,8 +204,9 @@ def saveResultsJSON(filename, times, Ws, neigs, jsonfilename, diffusion_znormali
     fout.write(json.dumps(Results))
     fout.close()
 
+
 if __name__ == '__main__':
-    filename = "MJ.mp3"
+    filename = "/Users/chou/Documents/heroz/new/test/5kaija/wav/5kaija.wav"
     path, ext = os.path.splitext(filename)
-    res = "data:audio/%s;base64, "%ext[1::] + getBase64File(filename)
-    print(res)
+    res = "data:audio/%s;base64, " % ext[1::] + getBase64File(filename)
+    # print(res)
