@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from scipy import sparse
 import scipy.sparse.linalg as sp
 import time
-from CSMSSMTools import *
+from CSMSSMTools import getSSM, getW
 
 
 def getDiffusionMap(K, neigs=4, thresh=5e-4):
@@ -90,7 +90,7 @@ def testDiffusionMaps():
         X = M[:, [-2, -3]]
         plt.scatter(X[:, 0], X[:, 1], 40, np.arange(N),
                     cmap='Spectral', edgecolor='none')
-        plt.title("2D Diffusion Map, t=%i, $\kappa=%g$" % (t, Kappa))
+        plt.title("2D Diffusion Map, t=%i, $\kappa=%g$" % (t, Kappa))  # noqa
         plt.axis('equal')
         plt.xlim([np.min(X[:, 0]) - 0.001, np.max(X[:, 0]) + 0.001])
         plt.ylim([np.min(X[:, 1]) - 0.001, np.max(X[:, 1]) + 0.001])

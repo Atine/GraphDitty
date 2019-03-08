@@ -5,12 +5,13 @@ doing similarity fusion on those features to make a weighted adjacency matrix
 """
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy import stats
 import seaborn as sns
 import scipy.io as sio
 import pandas
 import mir_eval
-from SongStructure import *
-from SalamiExperiments import *
+from SongStructure import win_fac
+from SalamiExperiments import compute_features, jam_annos_to_lists
 
 
 def SalamiSSMFigure(num, cmap='magma_r'):
@@ -19,8 +20,8 @@ def SalamiSSMFigure(num, cmap='magma_r'):
     Ws, times = ret['Ws'], ret['times']
     nrows = 2
     ncols = 3
-    resol = 2.6
-    fig = plt.figure(figsize=(resol*ncols, resol*nrows))
+    # resol = 2.6
+    # fig = plt.figure(figsize=(resol*ncols, resol*nrows))
     time_uniform = win_fac >= 0
     names = ['MFCCs', 'Chromas', 'Fused MFCC/Chroma',
              'Tempogram', 'Crema', 'Fused']
@@ -65,7 +66,7 @@ def SalamiSSMFigure(num, cmap='magma_r'):
     specintervals_hier = ret['specintervals_hier']
     speclabels_hier = ret['speclabels_hier']
     nrows = 3
-    fig = plt.figure(figsize=(resol*ncols, resol*nrows))
+    # fig = plt.figure(figsize=(resol*ncols, resol*nrows))
     for i, name in enumerate(names):
         row, col = np.unravel_index(i, (nrows, ncols))
         L = np.asarray(mir_eval.hierarchy._meet(

@@ -11,7 +11,7 @@ import os
 import librosa
 import librosa.display
 import argparse
-import subprocess
+# import subprocess
 
 # own
 from CSMSSMTools import getCSM, getCSMCosine
@@ -74,6 +74,8 @@ def plotFusionResults(Ws, vs, alllabels, times, win_fac,
             plt.xlabel("Time (sec)")
         if col == 0:
             plt.ylabel("Time (sec)")
+
+        '''below not done
         if name in alllabels:
             plt.subplot2grid((nrows, 8*3), (row, col*8+7))
             levels = [0]  # Look at only finest level for now
@@ -91,6 +93,8 @@ def plotFusionResults(Ws, vs, alllabels, times, win_fac,
                 plt.gca().invert_yaxis()
             plt.axis('off')
             plt.title("Clusters")
+            '''
+
     # plt.tight_layout()
     if len(labels_hier) > 0:
         for k in range(2):

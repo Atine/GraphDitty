@@ -155,7 +155,7 @@ def getS(W, K):
 
 def doSimilarityFusionWs(Ws, K=5, niters=20, reg_diag=1, reg_neighbs=0.5,
                          do_animation=False, PlotNames=[],
-                         PlotExtents=None, verboseTimes=True):
+                         PlotExtents=None, verboseTimes=False):
 
     """
     Perform similarity fusion between a set of exponentially
@@ -188,32 +188,8 @@ def doSimilarityFusionWs(Ws, K=5, niters=20, reg_diag=1, reg_neighbs=0.5,
 
     N = len(Pts)
     AllTimes = []
-    if do_animation:
-        res = 5
-        plt.figure(figsize=(res*N, res*2))
     for it in range(niters):
         ticiter = time.time()
-        if do_animation:
-            for i in range(N):
-                plt.subplot(1, N, i+1)
-                Im = 1.0*Pts[i]
-                np.fill_diagonal(Im, 0)
-                if PlotExtents:
-                    plt.imshow(np.log(5e-2+Im),
-                               interpolation='none',
-                               cmap='afmhot',
-                               extent=(PlotExtents[0],
-                                       PlotExtents[1],
-                                       PlotExtents[1],
-                                       PlotExtents[0]))
-                    plt.xlabel("Time (sec)")
-                    plt.ylabel("Time (sec)")
-                else:
-                    plt.imshow(
-                        np.log(5e-2+Im), interpolation='none', cmap='afmhot')
-                plt.title(PlotNames[i])
-            # plt.savefig("SSMFusion%i.png" % it, dpi=300, bbox_inches='tight')
-            plt.clf()
         for i in range(N):
             nextPts[i] *= 0
             tic = time.time()

@@ -5,3 +5,6 @@ __pycache__
 *.json
 *.svg
 out.mat
+
+# data
+salami-data-public-audio

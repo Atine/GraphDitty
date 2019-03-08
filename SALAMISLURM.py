@@ -1,8 +1,9 @@
-import numpy as np 
-from SalamiExperiments import *
+from SalamiExperiments import compute_features, AUDIO_DIR
 import argparse
+import os
 import sys
 import warnings
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -14,5 +15,5 @@ if __name__ == '__main__':
     if num in songnums:
         if not sys.warnoptions:
             warnings.simplefilter("ignore")
-        print("Doing %i"%num)
+        print("Doing %i" % num)
         compute_features(num)
