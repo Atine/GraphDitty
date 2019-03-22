@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from scipy import sparse
 import scipy.sparse.linalg as sp
 import time
-from CSMSSMTools import getSSM, getW
+from taiko_pytorch.graphditty.CSMSSMTools import getSSM, getW
 
 
 def getDiffusionMap(K, neigs=4, thresh=5e-4):

@@ -5,8 +5,8 @@ import scipy.io as sio
 import os
 import subprocess
 from multiprocessing import Pool as PPool
-from SongStructure import FFMPEG_BINARY
-from SalamiExperiments import AUDIO_DIR
+from taiko_pytorch.graphditty.SongStructure import FFMPEG_BINARY
+from taiko_pytorch.graphditty.SalamiExperiments import AUDIO_DIR
 model = crema.models.chord.ChordModel()
 
 

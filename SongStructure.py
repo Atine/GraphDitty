@@ -14,9 +14,9 @@ import argparse
 # import subprocess
 
 # own
-from CSMSSMTools import getCSM, getCSMCosine
-from SimilarityFusion import doSimilarityFusionWs, getW
-from SongStructureGUI import saveResultsJSON
+from taiko_pytorch.graphditty.CSMSSMTools import getCSM, getCSMCosine
+from taiko_pytorch.graphditty.SimilarityFusion import doSimilarityFusionWs, getW
+from taiko_pytorch.graphditty.SongStructureGUI import saveResultsJSON
 
 REC_SMOOTH = 9
 MANUAL_AUDIO_LOAD = False

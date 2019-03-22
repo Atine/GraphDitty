@@ -6,9 +6,9 @@ import scipy.misc
 import matplotlib.pyplot as plt
 import json
 import base64
-from SimilarityFusion import getS
-from DiffusionMaps import getDiffusionMap
-from Laplacian import getRandomWalkLaplacianEigsDense
+from taiko_pytorch.graphditty.SimilarityFusion import getS
+from taiko_pytorch.graphditty.DiffusionMaps import getDiffusionMap
+from taiko_pytorch.graphditty.Laplacian import getRandomWalkLaplacianEigsDense
 import time
 
 
